@@ -1,0 +1,11 @@
+
+Step 1:
+//Store given nginx playbook in any of your bucket
+
+Step 2: 
+terrafrom init
+
+step 3:
+//Pass existing key pair name and bucket name where ansible playbook store 
+
+terraform apply -var "instance_type=t2.micro" -var "key_name=pd_key" -var "bucket_name=cftemplatesfornestedloop"
