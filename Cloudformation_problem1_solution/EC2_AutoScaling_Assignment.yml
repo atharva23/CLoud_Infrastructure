@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t2.micro
+  KeyName:
+    Description: EC2 Key Pair name
+    Type: AWS::EC2::KeyPair::KeyName
+  BucketName:
+    Description: S3 Bucket Name
+    Type: String
+
+Resources:
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref EC2Role
+
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: S3ListBucketsPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListAllMyBuckets
+                Resource: "arn:aws:s3:::*"
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub "arn:aws:s3:::${BucketName}/nginx_playbook.yml"
+
+  # Add you bucket name where ansible playbook uploaded
+  LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: NgnixLaunchTemplate
+      LaunchTemplateData:
+        ImageId: ami-04823729c75214919
+        InstanceType: !Ref InstanceType
+        KeyName: !Ref KeyName
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            echo "${BucketName}" > /home/ec2-user/bucket_name.txt
+            sudo amazon-linux-extras install ansible2 -y
+            echo "${BucketName}" > /home/ec2-user/bucket_name.txt
+            aws s3 cp s3://${BucketName}/nginx_playbook.yml /home/ec2-user/nginx_playbook.yml
+            ansible-playbook /home/ec2-user/nginx_playbook.yml
+
+        IamInstanceProfile:
+          Arn: !GetAtt InstanceProfile.Arn
+
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for the EC2 instances
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: NginxAutoScalingGroup
+      AvailabilityZones:
+        - us-east-1a
+      LaunchTemplate:
+        LaunchTemplateId: !Ref LaunchTemplate
+        Version: !GetAtt LaunchTemplate.LatestVersionNumber
+      MinSize: 1
+      MaxSize: 3
+      DesiredCapacity: 2
