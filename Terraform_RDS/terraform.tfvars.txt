@@ -1,0 +1,7 @@
+rds_instance_class        = db.t3.micro
+rds_allocated_storage     = 10
+rds_superuser_name        = root
+rds_root_password         = password
+subnets                   = [subnet-09a93b406bceacc4c, subnet-052f5646d8759a307]
+
+
