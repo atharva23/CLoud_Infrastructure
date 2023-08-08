@@ -14,12 +14,11 @@ Before running the Docker Compose setup, make sure you have the following instal
 ## Getting Started
 
 1. Clone this repository to your local machine:
-
-
+   commands
+    ```bash
    git clone https://github.com/atharva23/CLoud_Infrastructure.git
    cd CLoud_Infrastructure
-
-
+    ```
 
 2. Update the `prometheus.yml` configuration file:
 
