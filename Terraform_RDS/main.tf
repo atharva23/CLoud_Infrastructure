@@ -2,7 +2,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_security_group" "rds" {
+resource "aws_security_group" "rds_security_group" {
   name_prefix = "rds-security-group"
   description = "Security group for RDS PostgreSQL database"
 
@@ -20,12 +20,12 @@ resource "aws_security_group" "rds" {
   }
 }
 
-resource "aws_db_subnet_group" "rds" {
+resource "aws_db_subnet_group" "rds_subnet_group" {
   name       = "rds-subnet-group"
   subnet_ids = var.subnets
 }
 
-resource "aws_db_instance" "example" {
+resource "aws_db_instance" "terraform_rds_instance" {
   engine              = "postgres"
   engine_version      = "15.3"
   instance_class      = var.rds_instance_class
