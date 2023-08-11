@@ -33,8 +33,8 @@ resource "aws_db_instance" "terraform_rds_instance" {
   identifier          = "my-rds-instance"
   username            = var.rds_superuser_name
   password            = var.rds_root_password
-  db_subnet_group_name = aws_db_subnet_group.rds.name
-  vpc_security_group_ids = [aws_security_group.rds.id]
+  db_subnet_group_name = aws_db_subnet_group.rds_subnet_group.name
+  vpc_security_group_ids = [aws_security_group.rds_security_group.id]
 
   publicly_accessible = true
 
