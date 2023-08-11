@@ -30,7 +30,7 @@ resource "aws_db_instance" "terraform_rds_instance" {
   engine_version      = "15.3"
   instance_class      = var.rds_instance_class
   allocated_storage   = var.rds_allocated_storage
-  identifier          = "my-rds-instance"
+  identifier          = "rds-instance-using-terraform"
   username            = var.rds_superuser_name
   password            = var.rds_root_password
   db_subnet_group_name = aws_db_subnet_group.rds_subnet_group.name
